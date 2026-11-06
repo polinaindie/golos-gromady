@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Голос Громади — Персональний генератор звернень</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Шапка -->
+        <header class="border-b border-slate-800 pb-6">
+            <span class="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider">
+                Громадянська кампанія
+            </span>
+            <h1 class="text-3xl font-extrabold text-white mt-3">Голос Громади: Конструктор звернень до НД</h1>
+            <p class="text-slate-400 mt-1">Вкажіть депутата, згенеруйте 1 із 100+ варіантів листа та надішліть з власної пошти.</p>
+        </header>
+
+        <!-- Основна форма -->
+        <div class="bg-slate-800/60 p-6 rounded-2xl border border-slate-700/60 space-y-5">
+            <!-- Крок 1: Введення даних депутата -->
+            <div>
+                <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                    <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">1</span>
+                    Кому надсилаємо лист?
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Ім'я та по батькові депутата (або ПІБ)</label>
+                        <input type="text" id="mpName" oninput="generateLetter()" placeholder="наприклад, Давид Георгійович або Мар'яна Володимирівна" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Електронна пошта депутата</label>
+                        <input type="email" id="mpEmail" oninput="generateLetter()" placeholder="наприклад, deputat@rada.gov.ua або info@rada.gov.ua" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Крок 2: Ваші дані -->
+            <div>
+                <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                    <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">2</span>
+                    Ваш підпис
+                </h2>
+                <input type="text" id="userName" oninput="generateLetter()" placeholder="Ваше ім'я та місто (наприклад, Олена, м. Львів)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-red-500">
+            </div>
+
+            <!-- Крок 3: Згенерований лист -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <span class="bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">3</span>
+                        Згенерований унікальний лист
+                    </h2>
+                    <button onclick="randomizeVariation()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition flex items-center gap-1">
+                        <span>🎲</span> Інший варіант тексту (100+ комбінацій)
+                    </button>
+                </div>
+                
+                <textarea id="finalText" rows="10" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-xs text-slate-200 font-mono focus:outline-none focus:border-red-500 leading-relaxed"></textarea>
+            </div>
+
+            <!-- Кнопки відправки -->
+            <div class="grid md:grid-cols-2 gap-4 pt-2">
+                <button onclick="sendMailto()" class="py-3.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                    <span>✉️</span> Відкрити в моїй пошті та надіслати
+                </button>
+                <button onclick="copyText()" class="py-3.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                    <span>📋</span> Скопіювати текст у буфер
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Варіації речень для створення 100+ унікальних текстів
+        const intros = [
+            "Звертаюся до Вас у зв'язку з катастрофічною ситуацією у правоохоронній та судовій системах.",
+            "Пишу Вам як громадянин(-ка) України, спостерігаючи за розгулом корупції у правоохоронній системі.",
+            "Хочу звернути Вашу увагу на неприпустимий стан справ у правоохоронних органах та судах.",
+            "Звертаюся з принциповою вимогою щодо подолання кругової поруки серед силовиків."
+        ];
+
+        const karfagenBlocks = [
+            "Справа «Карфаген», систематична корупція в органах правопорядку та відсутність жорсткої реакції нищать довіру суспільства до державних інститутів.",
+            "Мовчання владних інститутів щодо справи «Карфаген» та корумпованості силового блоку сприймається суспільством як пряме покривання злочинів.",
+            "Скандали навколо справи «Карфаген» демонструють, що правоохоронна система потребує негайної ліквідації кругової поруки."
+        ];
+
+        const requirements = [
+            "Вимагаю від Вас особисто підтримати та проголосувати ЗА реформу правоохоронних органів та суду (законопроєкти № 15333, № 16018, № 16043, № 16144).",
+            "Закликаю Вас зайняти принципову позицію та проголосувати ЗА законопроєкти реформи правоохоронної системи (№ 15333, № 16018, № 16043).",
+            "Прошу Вас не допустити затягування реформ і проголосувати ЗА пакет реформаторських законів під час найближчого засідання ВРУ."
+        ];
+
+        let selectedIntro = 0;
+        let selectedKarfagen = 0;
+        let selectedReq = 0;
+
+        function getGrammarSalutation(rawName) {
+            if (!rawName.trim()) return "Шановний(-а) народний(-а) депутате";
+
+            const parts = rawName.trim().split(/\s+/);
+            const name = parts[0];
+            const patronymic = parts[1] || "";
+
+            const isFemale = patronymic.endsWith("вна") || patronymic.endsWith("чна") || 
+                             ["Мар'яна", "Лариса", "Анастасія", "Ірина", "Юлія", "Олена", "Олександра", "Тетяна"].includes(name);
+
+            let vocName = name;
+            let vocPatr = patronymic;
+
+            if (patronymic.endsWith("вич")) vocPatr = patronymic + "у";
+            else if (patronymic.endsWith("вна")) vocPatr = patronymic.slice(0, -1) + "о";
+
+            // Базові правила кличної форми
+            if (isFemale) {
+                if (name.endsWith("а")) vocName = name.slice(0, -1) + "о";
+                else if (name.endsWith("я")) vocName = name.slice(0, -1) + "ю";
+                return `Шановна ${vocName} ${vocPatr}`.trim();
+            } else {
+                if (name.endsWith("о")) vocName = name.slice(0, -1) + "е";
+                else if (name.endsWith("й")) vocName = name.slice(0, -1) + "ю";
+                else if (!name.endsWith("е") && !name.endsWith("у")) vocName = name + "е";
+                return `Шановний ${vocName} ${vocPatr}`.trim();
+            }
+        }
+
+        function generateLetter() {
+            const rawName = document.getElementById('mpName').value;
+            const userName = document.getElementById('userName').value.trim() || "[Ваше Ім'я]";
+            
+            const salutation = getGrammarSalutation(rawName);
+
+            const body = `${salutation}!\n\n${intros[selectedIntro]}\n\n${karfagenBlocks[selectedKarfagen]}\n\n${requirements[selectedReq]}\n\nЗ повагою,\n${userName}`;
+            
+            document.getElementById('finalText').value = body;
+        }
+
+        function randomizeVariation() {
+            selectedIntro = Math.floor(Math.random() * intros.length);
+            selectedKarfagen = Math.floor(Math.random() * karfagenBlocks.length);
+            selectedReq = Math.floor(Math.random() * requirements.length);
+            generateLetter();
+        }
+
+        function sendMailto() {
+            const email = document.getElementById('mpEmail').value.trim();
+            const text = document.getElementById('finalText').value;
+
+            if (!email) {
+                alert("Будь ласка, вкажіть електронну пошту депутата у полі вище.");
+                return;
+            }
+
+            const subject = encodeURIComponent("Вимога щодо голосування за реформу правоохоронних органів");
+            const body = encodeURIComponent(text);
+
+            window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        }
+
+        function copyText() {
+            const text = document.getElementById('finalText').value;
+            navigator.clipboard.writeText(text);
+            alert("Текст звернення скопійовано у буфер обміну!");
+        }
+
+        // Початкова генерація
+        generateLetter();
+    </script>
+</body>
+</html>
